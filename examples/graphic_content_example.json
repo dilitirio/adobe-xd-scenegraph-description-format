@@ -1,0 +1,107 @@
+{
+  "artwork/artboard-example-12345/graphics/graphicContent.agc": {
+    "version": "0.0.0",
+    "children": [
+      {
+        "type": "artboard",
+        "id": "artboard-example",
+        "name": "Definitive Example Artboard",
+        "width": 1400,
+        "height": 1000,
+        "artboard": {
+          "children": [
+            {
+              "type": "group",
+              "id": "group-shapes-example",
+              "name": "Shape Primitives",
+              "transform": { "a": 1, "d": 1, "tx": 50, "ty": 50 },
+              "children": [
+                { "type": "shape", "id": "shape-rect-example", "name": "Rectangle", "transform": { "a": 1, "d": 1, "tx": 0, "ty": 0 }, "shape": { "type": "rect", "width": 150, "height": 80, "r": [10, 0, 10, 0] }, "style": { "fill": { "type": "solid", "color": { "mode": "RGB", "value": { "r": 255, "g": 99, "b": 71 } } } } },
+                { "type": "shape", "id": "shape-ellipse-example", "name": "Ellipse", "transform": { "a": 1, "d": 1, "tx": 200, "ty": 0 }, "shape": { "type": "ellipse", "cx": 75, "cy": 40, "rx": 75, "ry": 40 }, "style": { "fill": { "type": "solid", "color": { "mode": "RGB", "value": { "r": 65, "g": 105, "b": 225 } } } } },
+                { "type": "shape", "id": "shape-polygon-example", "name": "Polygon (Hexagon)", "transform": { "a": 1, "d": 1, "tx": 400, "ty": 0 }, "shape": { "type": "polygon", "n": 6, "points": [ { "x": 50, "y": 0 }, { "x": 100, "y": 29 }, { "x": 100, "y": 87 }, { "x": 50, "y": 116 }, { "x": 0, "y": 87 }, { "x": 0, "y": 29 } ] }, "style": { "fill": { "type": "solid", "color": { "mode": "RGB", "value": { "r": 255, "g": 215, "b": 0 } } } } },
+                { "type": "shape", "id": "shape-line-example", "name": "Line", "transform": { "a": 1, "d": 1, "tx": 0, "ty": 150 }, "shape": { "type": "line", "x1": 0, "y1": 0, "x2": 150, "y2": 0 }, "style": { "stroke": { "type": "solid", "width": 5, "cap": "round", "color": { "mode": "RGB", "value": { "r": 0, "g": 0, "b": 0 } } } } },
+                { "type": "shape", "id": "shape-path-example", "name": "Path", "transform": { "a": 1, "d": 1, "tx": 200, "ty": 150 }, "shape": { "type": "path", "path": "M0,0 C30,80 70,80 100,0 Z" }, "style": { "fill": { "type": "solid", "color": { "mode": "RGB", "value": { "r": 32, "g": 178, "b": 170 } } } } }
+              ]
+            },
+            {
+              "type": "group",
+              "id": "group-styles-example",
+              "name": "Styles and Effects",
+              "transform": { "a": 1, "d": 1, "tx": 650, "ty": 50 },
+              "children": [
+                { "type": "shape", "id": "style-gradient-example", "name": "Gradient Fill", "transform": { "a": 1, "d": 1, "tx": 0, "ty": 0 }, "shape": { "type": "rect", "width": 150, "height": 80 }, "style": { "fill": { "type": "gradient", "gradient": { "type": "linear", "x1": 0, "y1": 0, "x2": 1, "y2": 1, "units": "objectBoundingBox", "stops": [ { "offset": 0, "color": { "mode": "RGB", "value": { "r": 255, "g": 255, "b": 255 } } }, { "offset": 1, "color": { "mode": "RGB", "value": { "r": 211, "g": 211, "b": 211 } } } ] } } } },
+                { "type": "shape", "id": "style-dashed-stroke-example", "name": "Dashed Stroke", "transform": { "a": 1, "d": 1, "tx": 0, "ty": 120 }, "shape": { "type": "rect", "width": 150, "height": 80 }, "style": { "stroke": { "type": "solid", "width": 4, "dash": [10, 5], "join": "miter", "color": { "mode": "RGB", "value": { "r": 255, "g": 69, "b": 0 } } }, "fill": { "type": "none" } } },
+                { "type": "shape", "id": "effect-dropshadow-example", "name": "Drop Shadow", "transform": { "a": 1, "d": 1, "tx": 200, "ty": 0 }, "shape": { "type": "rect", "width": 150, "height": 80 }, "style": { "fill": { "type": "solid", "color": { "mode": "RGB", "value": { "r": 255, "g": 255, "b": 255 } } }, "effects": [ { "type": "dropShadow", "visible": true, "params": { "blur": 20, "x": 0, "y": 10, "color": { "mode": "RGB", "value": { "r": 0, "g": 0, "b": 0 }, "alpha": 0.3 } } } ] } },
+                { "type": "shape", "id": "effect-innershadow-example", "name": "Inner Shadow", "transform": { "a": 1, "d": 1, "tx": 200, "ty": 120 }, "shape": { "type": "rect", "width": 150, "height": 80 }, "style": { "fill": { "type": "solid", "color": { "mode": "RGB", "value": { "r": 230, "g": 230, "b": 230 } } }, "effects": [ { "type": "uxdesign#innerShadow", "visible": true, "params": { "blur": 10, "x": 0, "y": 5, "color": { "mode": "RGB", "value": { "r": 0, "g": 0, "b": 0 }, "alpha": 0.2 } } } ] } }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "text-example-1",
+              "name": "Rich Text Block",
+              "transform": { "a": 1, "d": 1, "tx": 50, "ty": 350 },
+              "text": {
+                "rawText": "Rich Text: Bold and Italic", "textAlign": "left",
+                "paragraphs": [ { "styleRuns": [
+                    { "length": 11, "style": { "font": { "family": "Arial", "style": "Bold", "size": 24 } } },
+                    { "length": 4, "style": { "font": { "family": "Arial", "style": "Regular", "size": 24 } } },
+                    { "length": 5, "style": { "font": { "family": "Arial", "style": "Italic", "size": 24 } } }
+                ] } ]
+              },
+              "style": { "fill": { "type": "solid", "color": { "mode": "RGB", "value": { "r": 50, "g": 50, "b": 50 } } } }
+            },
+            {
+              "type": "group",
+              "id": "group-scrollable-example",
+              "name": "Scrollable Panel",
+              "transform": { "a": 1, "d": 1, "tx": 50, "ty": 450 },
+              "meta": { "ux": { "scrollingType": "vertical", "viewportHeight": 200 } },
+              "children": [
+                { "type": "shape", "id": "scroll-content-example", "name": "Long Content", "shape": { "type": "rect", "x": 0, "y": 0, "width": 400, "height": 500 }, "style": { "fill": { "type": "solid", "color": { "mode": "RGB", "value": { "r": 245, "g": 245, "b": 245 } } } } }
+              ]
+            },
+            {
+              "type": "group",
+              "id": "group-components-example",
+              "name": "Component Instances",
+              "transform": { "a": 1, "d": 1, "tx": 650, "ty": 450 },
+              "children": [
+                { "type": "syncRef", "id": "component-instance-1", "name": "Button (Default State)", "ref": "master-button-example", "transform": { "a": 1, "d": 1, "tx": 0, "ty": 0 } },
+                { "type": "syncRef", "id": "component-instance-2", "name": "Button (Hover State)", "ref": "master-button-example", "transform": { "a": 1, "d": 1, "tx": 0, "ty": 80 }, "state": { "id": "state-hover-example", "name": "Hover" } },
+                { "type": "syncRef", "id": "component-instance-3", "name": "Button (Overridden Text)", "ref": "master-button-example", "transform": { "a": 1, "d": 1, "tx": 0, "ty": 160 }, "overrides": [ { "target": "label-text-example", "text": { "rawText": "Overridden" } } ] }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "resources": {
+      "symbols": [
+        {
+          "type": "group",
+          "id": "master-button-example",
+          "name": "Master Button",
+          "isMaster": true,
+          "children": [
+            { "type": "shape", "id": "bg-shape-example", "name": "background", "shape": { "type": "rect", "width": 200, "height": 50, "r": [25, 25, 25, 25]}, "style": { "fill": {"type": "solid", "color": {"value": {"r": 0, "g": 122, "b": 255}}}} },
+            { "type": "text", "id": "label-text-example", "name": "label", "text": { "rawText": "Click Me" }, "style": { "fill": {"type": "solid", "color": {"value": {"r": 255, "g": 255, "b": 255}}}}}
+          ],
+          "states": [
+            { "id": "master-button-example", "name": "Default" },
+            { "id": "state-hover-example", "name": "Hover", "overrides": [ { "target": "bg-shape-example", "style": { "fill": { "color": { "value": {"r": 50, "g": 152, "b": 255} } } } } ] }
+          ],
+          "meta": { "ux": { "interactions": [
+            { "triggerEvent": "tap", "action": "artboard-transition", "properties": { "destination": "another-artboard-id", "transition": "dissolve", "duration": 0.4, "easing": "ease-out" } },
+            { "triggerEvent": "hover", "action": "state-transition", "properties": { "destination": "state-hover-example", "transition": "auto-animate" } }
+          ]}}
+        }
+      ],
+      "documentLibrary": {
+          "elements": {
+              "colors": [ { "id": "color-brand-primary-example", "representations": [ { "type": "color", "value": { "mode": "RGB", "value": {"r": 0, "g": 122, "b": 255} } } ] } ]
+          },
+          "colorSwatches": [ { "name": "Brand Colors", "swatches": [ { "ref": "color-brand-primary-example" } ] } ]
+      }
+    }
+  }
+}
