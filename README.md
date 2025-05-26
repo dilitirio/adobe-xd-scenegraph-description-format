@@ -1,6 +1,6 @@
 # Adobe XD Scenegraph Toolkit
 
-A technical reference and specification for the Adobe XD scenegraph data format (JSON), intended for developers building design-to-code tools. This repository provides a detailed format reference and a practical extraction tool.
+A toolkit for developers working with Adobe XD, including a scenegraph extractor and a detailed data format specification. This repository provides a detailed format reference and a practical extraction tool.
 
 ## AXDS Extractor (Adobe XD Scenegraph Extractor)
 
@@ -61,265 +61,161 @@ python gui.py
 
 ## Adobe XD Scenegraph Description Format
 
-### Technical Reference v1.0
+### Technical Reference
 
-### 1. Definition and Purpose
+This reference has been updated based on analysis of multiple real-world projects.
 
-The Adobe XD Scenegraph is a specialized JSON-like data structure that declaratively describes the structure, properties, and styling of design elements.
+### 1. Core Concepts
 
-- **Source:** The structure is extracted from `.xd` files, primarily from one or more `graphicContent.agc` files within the archive.
-- **Purpose:** It serves as a machine-readable blueprint for rendering UIs, managing interactions, and converting designs into other formats.
-- **Nature:** The format is declarative—it describes _what_ the design is, not _how_ it should be rendered step-by-step.
+#### 1.1. The Scenegraph
 
-### 2. Adobe XD File Architecture
+The core of the format is a hierarchical tree of nodes (a scenegraph) that represents the visual elements. The primary scenegraph for each artboard is found within its corresponding `graphicContent.agc` file.
 
-An `.xd` file is a standard ZIP archive containing a decentralized collection of files and folders. To get a complete representation of the design, multiple sources within the archive must be processed.
+#### 1.2. Resources
 
-- **`graphicContent.agc`**: The most critical file, containing the detailed JSON description of design elements. An archive may contain multiple instances of this file for different artboards, pasteboards, or resources.
-- **`interactions.json`**: Describes user interactions and transitions between artboards.
-- **`manifest.json`**: Acts as a table of contents for the archive's structure.
+A special section, typically in `resources/graphics/graphicContent.agc`, acts as a central library for the entire document. It contains definitions for:
 
-### 3. Data Structure (The Scenegraph)
+- **Master Components (`symbols`):** The blueprint for all reusable components.
+- **Document Assets (`documentLibrary`):** Centralized colors, character styles, etc.
+- **Reusable Gradients and other assets.**
 
-The format is a hierarchical tree of nodes. The root object contains the format version and a `children` array of `Artboard` nodes.
+#### 1.3. Components (Symbols)
 
-**JSON Example: Root Structure**
+XD uses a powerful master-instance model for components.
+
+- **Master Component:** Defined once in the `resources.symbols` array. It has `isMaster: true` and contains definitions for all its states and interactions.
+- **Component Instance (`syncRef`):** An instance of a master component placed on an artboard. It has a `type` of `"syncRef"` and a `ref` property pointing to the `id` of the master component.
+
+### 2. Root Structure
+
+The root JSON object is a dictionary where keys are the paths to `graphicContent.agc` files. Each of these contains a scenegraph with a `version`, a `children` array (usually holding artboards), and a `resources` object.
 
 JSON
 
 ```
 {
-  "version": "1.5.0",
-  "children": [
-    {
-      "type": "Artboard",
-      "id": "...",
-      "name": "MainScreen",
-      "children": [ ... ]
+  "artwork/artboard-id/graphics/graphicContent.agc": {
+    "version": "1.5.0",
+    "children": [ ... ],
+    "resources": { ... }
+  },
+  "resources/graphics/graphicContent.agc": {
+    "resources": {
+      "symbols": [ ... ],
+      "documentLibrary": { ... }
     }
-  ]
+  }
 }
 ```
 
-### 4. Common Node Properties
+### 3. Node Reference
 
-Most nodes share a base set of properties:
+#### 3.1. Common Node Properties
 
 |   |   |   |
 |---|---|---|
 |**Property**|**Type**|**Description**|
 |`id`|`string`|A unique identifier for the node.|
 |`name`|`string`|The layer name as set in Adobe XD.|
-|`type`|`string`|The node type (e.g., `"Shape"`, `"Text"`, `"Group"`).|
+|`type`|`string`|The node type (e.g., `"shape"`, `"text"`, `"group"`).|
 |`transform`|`object`|An affine transformation matrix defining position, scale, and rotation.|
 |`visible`|`boolean`|Determines if the node is visible (defaults to `true`).|
 |`opacity`|`number`|The node's opacity, from 0 (transparent) to 1 (opaque).|
-|`blendMode`|`string`|The layer's blend mode (e.g., `"pass-through"`, `"multiply"`).|
+|`style`|`object`|Contains all visual styling properties like `fill`, `stroke`, `effects`.|
+|`meta.ux.symbolId`|`string`|For component instances, this ID links it to the master symbol.|
 
-JSON Example: transform Matrix
+#### 3.2. Artboard
 
-Defines translation, scale, and rotation. tx/ty are for translation.
+The top-level container for a screen. In some files, the `children` are nested inside an `artboard` object.
 
-JSON
+- **Key Properties**: `width`, `height`, `children`.
+- **`meta.ux.scrollingType`**: Can be `"vertical"`, `"horizontal"`, or `"panning"`.
 
-```
-"transform": {
-  "type": "matrix",
-  "a": 1, "b": 0, "c": 0, "d": 1,
-  "tx": 150,
-  "ty": 200
-}
-```
+#### 3.3. Shape
 
-### 5. Core Node Types
-
-#### 5.1. Artboard
-
-A top-level container for a single UI screen.
-
-**JSON Example: `Artboard`**
-
-JSON
-
-```
-{
-  "type": "Artboard",
-  "id": "artboard-01",
-  "name": "Login Screen",
-  "width": 1920,
-  "height": 1080,
-  "style": {
-    "fill": {
-      "type": "solid",
-      "color": { "mode": "RGB", "value": {"r": 255, "g": 255, "b": 255}, "alpha": 1 }
-    }
-  },
-  "children": [ ... ]
-}
-```
-
-#### 5.2. Shape
-
-Represents any vector graphic. Consists of a `shape` object (geometry) and a `style` object (appearance).
-
-**JSON Example: `Shape` (Rectangle)**
-
-JSON
-
-```
-{
-  "type": "Shape",
-  "id": "shape-01",
-  "name": "Button Background",
-  "shape": {
-    "type": "rect",
-    "x": 0,
-    "y": 0,
-    "width": 200,
-    "height": 50,
-    "r": [10, 10, 10, 10]
-  },
-  "style": {
-    "fill": { "type": "solid", "color": { "mode": "RGB", "value": {"r": 0, "g": 122, "b": 255} } }
-  }
-}
-```
-
-- **Other `shape.type` values:** `ellipse` (uses `cx`, `cy`, `rx`, `ry`), `path` (uses an SVG-like `path` string), `line` (uses `x1, y1, x2, y2`), and `compound` (uses a boolean `operation` on child shapes).
-
-#### 5.3. Text
-
-Represents text elements.
-
-**JSON Example: `Text`**
-
-JSON
-
-```
-{
-  "type": "Text",
-  "id": "text-01",
-  "name": "Button Label",
-  "text": {
-    "rawText": "Sign In",
-    "paragraphs": [
-      {
-        "lines": [ [ { "x": 0, "y": 0 } ] ],
-        "styleRuns": [
-          { "length": 7, "style": { "font": { "family": "Roboto", "style": "Bold", "size": 16 } } }
-        ]
-      }
-    ],
-    "textAlign": "center"
-  },
-  "style": {
-    "fill": { "type": "solid", "color": { "mode": "RGB", "value": {"r": 255, "g": 255, "b": 255} } }
-  }
-}
-```
-
-#### 5.4. Group
-
-A container for organizing other nodes. Transformations applied to a group affect all its children.
-
-**JSON Example: `Group`**
-
-JSON
-
-```
-{
-  "type": "Group",
-  "id": "group-01",
-  "name": "Login Button",
-  "transform": { "type": "matrix", "tx": 100, "ty": 300, "a": 1, "b": 0, "c": 0, "d": 1 },
-  "children": [
-    { "type": "Shape", "name": "Button Background", "id": "shape-01", ... },
-    { "type": "Text", "name": "Button Label", "id": "text-01", ... }
-  ]
-}
-```
-
-#### 5.5. Component
-
-Represents a reusable design element with a master-instance relationship.
-
-**JSON Example: `Component` Instance**
-
-JSON
-
-```
-{
-  "type": "Component",
-  "id": "component-instance-01",
-  "name": "Primary Button",
-  "ref": "master-component-guid",
-  "state": {
-    "id": "state-guid",
-    "name": "Default"
-  },
-  "overrides": [],
-  "children": [ ... ]
-}
-```
-
-### 6. Styling and Visual Effects
-
-#### 6.1. Fill (`style.fill`)
+Represents all vector graphics.
 
 |   |   |   |
 |---|---|---|
-|**Type**|**Description**|**JSON Example**|
-|`solid`|A single, solid color.|`{"type": "solid", "color": {"mode": "RGB", "value": ...}}`|
-|`gradient`|A color gradient. Coordinates are relative to the object's bounds (`units: "objectBoundingBox"`).|`{"type": "gradient", "gradient": {"type": "linear", "x1": 0, "y1": 0, "x2": 1, "y2": 1, "stops": [...]}}`|
-|`pattern`|An image fill. The `href` is often an absolute, non-portable file path.|`{"type": "pattern", "pattern": {"href": "D:\\...", "width": 100, "height": 100}}`|
+|**Shape Type**|**Key Properties**|**Description**|
+|`rect`|`x`, `y`, `width`, `height`, `r`|A rectangle. `r` is an array of corner radii.|
+|`ellipse`|`cx`, `cy`, `rx`, `ry`|An ellipse defined by its center and radii.|
+|`path`|`path`|A custom vector shape defined by an SVG-like path string.|
+|`line`|`x1`, `y1`, `x2`, `y2`|A straight line between two points.|
+|`polygon`|`points`, `n`|A regular polygon with `n` sides.|
 
-#### 6.2. Stroke (`style.stroke`)
+#### 3.4. Text
 
-Defines an object's outline. Key properties include `width`, `color`, `align` (`inside`, `center`, `outside`), `cap`, `join`, and `dash` pattern.
+- **`rawText`**: The string content.
+- **`paragraphs` & `styleRuns`**: Defines rich text with multiple styles in a single block.
+- **`textAlign`**: `"left"`, `"center"`, `"right"`.
+- **`lineAlign`**: Vertical alignment, e.g., `"leading"`.
+- **`frame.type`**: Sizing behavior, e.g., `"auto-height"`, `"auto-width"`.
 
-**JSON Example: `stroke`**
+#### 3.5. Group
 
-JSON
+A container for other nodes. It can have its own `style` and `effects`.
 
-```
-"stroke": {
-  "type": "solid",
-  "align": "inside",
-  "width": 2,
-  "color": { "mode": "RGB", "value": {"r": 220, "g": 220, "b": 220} }
-}
-```
+- **`style.isolation`**: A property found on groups, e.g., `"isolate"`.
 
-#### 6.3. Effects (`style.effects`)
+#### 3.6. Component Instance (`syncRef`)
 
-An array of filter objects.
+- **`type`**: `"syncRef"`.
+- **`ref`**: The `id` of the master component this instance is linked to.
+- **`state`**: An object (`{ "id": "...", "name": "..." }`) specifying which state of the master component is active.
 
-|   |   |   |
-|---|---|---|
-|**Type**|**Description**|**JSON Example**|
-|`dropShadow`|Adds a drop shadow.|`{"type": "dropShadow", "visible": true, "params": {"blur": 10, "x": 0, "y": 5, "color": ...}}`|
-|`blur`|Blurs the object. If `backgroundEffect` is `true`, it blurs the content _behind_ the element.|`{"type": "uxdesign#blur", "visible": true, "params": {"blurAmount": 5, "backgroundEffect": true}}`|
+### 4. Resources Section In-Depth
 
-### 7. Responsive Design (`meta.ux`)
+#### 4.1. Master Components (`resources.symbols`)
 
-The `meta.ux` object contains properties that define adaptive behavior.
+This is an array where each object is a master component definition.
 
-- **Constraints**: Boolean properties like `constraintLeft`, `constraintTop`, and `constraintWidth` determine how an element resizes and pins to its parent. `constraintsDisabled: true` on an artboard enforces absolute positioning for its children.
-- **Grid Style**: The `gridStyle` object on an artboard defines a column grid with `columns`, `gutter`, `columnSpacing`, and margin properties.
-- **Scrolling**: A group can be made scrollable with `scrollingType: "vertical"` or `"horizontal"`. The visible area is defined by `viewportWidth` and `viewportHeight`.
-- **Other**: `aspectLock` ensures proportional scaling, while `rotation` specifies element rotation in degrees.
+- **`isMaster: true`**: Identifies it as a master.
+- **`children`**: The layers that make up the component.
+- **`states`**: An array of all possible states for this component, including the default.
+- **`meta.ux.interactions`**: A critical array defining all interactions for this component. See Section 6.
 
-**JSON Example: Responsive Properties**
+#### 4.2. Document Assets (`resources.documentLibrary`)
 
-JSON
+A centralized store for design system tokens.
 
-```
-"meta": {
-  "ux": {
-    "constraintWidth": true,
-    "constraintHeight": false,
-    "scrollingType": "vertical",
-    "viewportHeight": 500
-  }
-}
-```
+- **`elements`**: Contains definitions for shared colors and character styles.
+- **`colorSwatches`**: An array of color definitions, often organized into groups.
+
+### 5. Styling In-Depth
+
+#### 5.1. Fill & Stroke
+
+- **`fill`**: Can be `solid`, `gradient`, or `pattern`.
+- **`stroke`**: Besides `width` and `color`, it includes:
+    - `type`: Can be `"solid"` or `"none"` to disable it.
+    - `align`: `"inside"`, `"outside"`, `"center"`.
+    - `join`: `"miter"`, `"round"`, `"bevel"`.
+    - `cap`: `"butt"`, `"round"`, `"square"`.
+    - `dash`: An array defining a dashed pattern, e.g., `[10, 5]`.
+
+#### 5.2. Effects (`style.effects`)
+
+An array of filter objects. Each object has `visible` and `params`.
+
+|   |   |
+|---|---|
+|**Effect Type**|**Description**|
+|`dropShadow`|A standard drop shadow effect.|
+|`uxdesign#innerShadow`|An inner shadow effect.|
+|`uxdesign#blur`|An object or background blur. `backgroundEffect: true` enables the "frosted glass" effect.|
+
+### 6. Interactions
+
+Defined within master components (`resources.symbols[...].meta.ux.interactions`). An interaction object has:
+
+- **`triggerEvent`**: The user input that fires the interaction, e.g., `"tap"`, `"hover"`, `"drag"`.
+- **`action`**: What the interaction does.
+    - `"state-transition"`: Switches the component to a different state.
+    - `"artboard-transition"`: Navigates to a different artboard.
+    - `"overlay-transition"`: Shows another artboard as an overlay.
+- **`properties`**: Details of the action.
+    - `destination`: The target `id` for a transition (artboard or state).
+    - `transition`: The animation style (`"auto-animate"`, `"dissolve"`, `"slideLeft"`).
+    - `duration`: Animation length in seconds.
+    - `easing`: The easing function (`"ease-out"`, `"linear"`, `"bounce"`).
